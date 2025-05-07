@@ -3,130 +3,131 @@
 
 % \documentclass[AutoFakeBold]{LZUThesis}
 \documentclass[AutoFakeBold]{LZUThesis}
-
-\usepackage{wasysym}
-\usepackage{enumitem}
-\usepackage[most]{tcolorbox}
-\usepackage{multirow}
-\usepackage{inputenc}
-\usepackage{tikz}
-\usepackage{bbding}
-\usetikzlibrary{arrows.meta, decorations.markings}
-\usepackage{hyperref}
-\usepackage[numbers,sort&compress]{natbib}
-\usepackage{pdfpages}
-% \newcommand{\upcite}[1]{\textsuperscript{\textsuperscript{\cite{#1}}}}
-\allowdisplaybreaks[4]
-\usepackage{pdfpages}
-\usepackage[many]{tcolorbox}
-\usepackage{setspace}
-% \setmonofont{MapleMono-NF-CN-Medium}
-\setmonofont{MapleMono-NF-CN-Regular}
-
-% \newtcolorbox[auto counter, number within=section, list inside=listoftables]{fancybox}[2][]{
-\newcommand{\supercite}[1]{\textsuperscript{\textsuperscript{\cite{#1}}}}
-\newtcolorbox[use counter=table]{fancybox}[2][]{
-    title=Code~\thetcbcounter: #2,
-    breakable, left=1cm,
-    label={code:#2},
-    % list entry=code~\thetcbcounter: #2
-    % colback=yellow!10!white, colframe=red!50!black
-}
-
-
-
-
-
-
-
-
-\usepackage[dvipsnames]{xcolor}
-\usepackage{tikz}
-\usetikzlibrary{backgrounds}
-\usetikzlibrary{arrows,shapes}
-\usetikzlibrary{tikzmark}
-\usetikzlibrary{calc}
-
-\usepackage{amsmath}
-\usepackage{amsthm}
-\usepackage{amssymb}
-\usepackage{mathtools, nccmath}
-\usepackage{wrapfig}
-\usepackage{comment}
-
-% To generate dummy text
-\usepackage{blindtext}
-
-
-%color
-%\usepackage[dvipsnames]{xcolor}
-% \usepackage{xcolor}
-
-
-%\usepackage[pdftex]{graphicx}
-\usepackage{graphicx}
-% declare the path(s) for graphic files
-%\graphicspath{{../Figures/}}
-
-% extensions so you won't have to specify these with
-% every instance of \includegraphics
-% \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
-
-% for custom commands
-\usepackage{xspace}
-
-% table alignment
-\usepackage{array}
-\usepackage{ragged2e}
-\newcolumntype{P}[1]{>{\RaggedRight\hspace{0pt}}p{#1}}
-\newcolumntype{X}[1]{>{\RaggedRight\hspace*{0pt}}p{#1}}
-
-% color box
-\usepackage{tcolorbox}
-
-
-% for tikz
-\usepackage{tikz}
-%\usetikzlibrary{trees}
-\usetikzlibrary{arrows,shapes,positioning,shadows,trees,mindmap}
-% \usepackage{forest}
-\usepackage[edges]{forest}
-\usetikzlibrary{arrows.meta}
-\colorlet{linecol}{black!75}
-\usepackage{xkcdcolors} % xkcd colors
-
-
-% for colorful equation
-\usepackage{tikz}
-\usetikzlibrary{backgrounds}
-\usetikzlibrary{arrows,shapes}
-\usetikzlibrary{tikzmark}
-\usetikzlibrary{calc}
-% Commands for Highlighting text -- non tikz method
-\newcommand{\highlight}[2]{\colorbox{#1!17}{$\displaystyle #2$}}
-%\newcommand{\highlight}[2]{\colorbox{#1!17}{$#2$}}
-\newcommand{\highlightdark}[2]{\colorbox{#1!47}{$\displaystyle #2$}}
-
-% my custom colors for shading
-\colorlet{mhpurple}{Plum!80}
-
-
-% Commands for Highlighting text -- non tikz method
-\renewcommand{\highlight}[2]{\colorbox{#1!17}{#2}}
-\renewcommand{\highlightdark}[2]{\colorbox{#1!47}{#2}}
-
-% Some math definitions
-\newcommand{\lap}{\mathrm{Lap}}
-\newcommand{\pr}{\mathrm{Pr}}
-
-\newcommand{\Tset}{\mathcal{T}}
-\newcommand{\Dset}{\mathcal{D}}
-\newcommand{\Rbound}{\widetilde{\mathcal{R}}}
-
-
-
-
-\newcommand{\code}[1]{\lstinline|#1|}
+  
+  \usepackage{wasysym}
+  \usepackage{enumitem}
+  \usepackage[most]{tcolorbox}
+  \usepackage{multirow}
+  \usepackage{inputenc}
+  \usepackage{tikz}
+  \usepackage{bbding}
+  \usetikzlibrary{arrows.meta, decorations.markings}
+  \usepackage{hyperref}
+  \usepackage[numbers,sort&compress]{natbib}
+  \usepackage{pdfpages}
+  % \newcommand{\upcite}[1]{\textsuperscript{\textsuperscript{\cite{#1}}}}
+  \allowdisplaybreaks[4]
+  \usepackage{pdfpages}
+  \usepackage[many]{tcolorbox}
+  \usepackage{setspace}
+  % \setmonofont{MapleMono-NF-CN-Medium}
+  \setmonofont{MapleMono-NF-CN-Regular}
+  
+  % \newtcolorbox[auto counter, number within=section, list inside=listoftables]{fancybox}[2][]{
+  \newcommand{\supercite}[1]{\textsuperscript{\textsuperscript{\cite{#1}}}}
+  \newtcolorbox[use counter=table]{fancybox}[2][]{
+      title=Code~\thetcbcounter: #2,
+      breakable, left=1cm,
+      label={code:#2},
+      % list entry=code~\thetcbcounter: #2
+      % colback=yellow!10!white, colframe=red!50!black
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  \usepackage[dvipsnames]{xcolor}
+  \usepackage{tikz}
+  \usetikzlibrary{backgrounds}
+  \usetikzlibrary{arrows,shapes}
+  \usetikzlibrary{tikzmark}
+  \usetikzlibrary{calc}
+  
+  \usepackage{amsmath}
+  \usepackage{amsthm}
+  \usepackage{amssymb}
+  \usepackage{mathtools, nccmath}
+  \usepackage{wrapfig}
+  \usepackage{comment}
+  \usepackage{subfigure}
+  
+  % To generate dummy text
+  \usepackage{blindtext}
+  
+  
+  %color
+  %\usepackage[dvipsnames]{xcolor}
+  % \usepackage{xcolor}
+  
+  
+  %\usepackage[pdftex]{graphicx}
+  \usepackage{graphicx}
+  % declare the path(s) for graphic files
+  %\graphicspath{{../Figures/}}
+  
+  % extensions so you won't have to specify these with
+  % every instance of \includegraphics
+  % \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
+  
+  % for custom commands
+  \usepackage{xspace}
+  
+  % table alignment
+  \usepackage{array}
+  \usepackage{ragged2e}
+  \newcolumntype{P}[1]{>{\RaggedRight\hspace{0pt}}p{#1}}
+  \newcolumntype{X}[1]{>{\RaggedRight\hspace*{0pt}}p{#1}}
+  
+  % color box
+  \usepackage{tcolorbox}
+  
+  
+  % for tikz
+  \usepackage{tikz}
+  %\usetikzlibrary{trees}
+  \usetikzlibrary{arrows,shapes,positioning,shadows,trees,mindmap}
+  % \usepackage{forest}
+  \usepackage[edges]{forest}
+  \usetikzlibrary{arrows.meta}
+  \colorlet{linecol}{black!75}
+  \usepackage{xkcdcolors} % xkcd colors
+  
+  
+  % for colorful equation
+  \usepackage{tikz}
+  \usetikzlibrary{backgrounds}
+  \usetikzlibrary{arrows,shapes}
+  \usetikzlibrary{tikzmark}
+  \usetikzlibrary{calc}
+  % Commands for Highlighting text -- non tikz method
+  \newcommand{\highlight}[2]{\colorbox{#1!17}{$\displaystyle #2$}}
+  %\newcommand{\highlight}[2]{\colorbox{#1!17}{$#2$}}
+  \newcommand{\highlightdark}[2]{\colorbox{#1!47}{$\displaystyle #2$}}
+  
+  % my custom colors for shading
+  \colorlet{mhpurple}{Plum!80}
+  
+  
+  % Commands for Highlighting text -- non tikz method
+  \renewcommand{\highlight}[2]{\colorbox{#1!17}{#2}}
+  \renewcommand{\highlightdark}[2]{\colorbox{#1!47}{#2}}
+  
+  % Some math definitions
+  \newcommand{\lap}{\mathrm{Lap}}
+  \newcommand{\pr}{\mathrm{Pr}}
+  
+  \newcommand{\Tset}{\mathcal{T}}
+  \newcommand{\Dset}{\mathcal{D}}
+  \newcommand{\Rbound}{\widetilde{\mathcal{R}}}
+  
+  
+  
+  
+  \newcommand{\code}[1]{\lstinline|#1|}
 
 
 
@@ -134,14 +135,14 @@
 
 \begin{document}
 
-\title{{基于Julia的单细胞}{数据分析平台的设计与实现}}
+\title{{组织蛋白酶家族对于}{体内屏障衰老的作用与机制}}
 
-\entitle{{Design and Implementation of a Julia-based}{Single-Cell Data Analysis Platform}}
+\entitle{{Cathepsin Family: Mechanisms and Impact}{on Aging of Physiological Barriers}}
 
-\author{李泽华}
-\advisor{赵伟}
-\major{生物信息学}
-\college{生命科学学院}
+\author{张蔚华}
+\advisor{金卫林}
+\major{生物学}
+\college{萃英学院}
 \grade{2021级}
 
 
@@ -160,7 +161,7 @@
 % 你的签名，signature.pdf 改为你的签名文件名，
 \mysignature{
     % \raisebox{-5pt}{
-    \includegraphics[width=40pt]{img/my_signature.png}
+    \includegraphics[width=60pt]{img/my_signature.png}
     % }
 }
 % 你手写的日期，signature.pdf 改为你的手写的日期文件名
@@ -173,7 +174,7 @@
 % 老师的手写签名，signature.pdf 改为老师的手写签名文件名
 \supervisorsignature{
     % \raisebox{-5pt}{
-    \includegraphics[width=40pt]{img/teacher_signature.png}
+    \includegraphics[width=60pt]{img/teacher_signature.png}
     % }
 }
 % 老师手写的时间，signature.pdf 改为老师的手写的日期文件名
@@ -216,29 +217,17 @@
 
 %中文摘要
 \ZhAbstract{
-单细胞转录组测序（scRNA-seq）等单细胞技术正以前所未有的速度飞跃发展，推动生命科学进入以细胞为基本单元深入解析的新时代。相较于传统的群体测序（bulk RNA-seq），单细胞测序能够捕捉个体细胞之间的异质性，揭示更为精细的生物学图景。然而，由于数据的高维性、稀疏性及噪声等特性，其分析对计算工具与算法提出了更高要求。
-
-目前，Scanpy（Python）、Seurat（R）等主流分析平台虽功能完备，但在性能方面受限于解释性语言的运行效率。为追求高性能，它们往往依赖 C/C++ 或 Rust 等静态类型语言进行底层加速，这不仅加重了使用负担，也提高了调试的门槛。
-
-本研究提出 Juscan.jl 是一个完全使用 Julia 编写的单细胞数据分析平台，旨在打破性能瓶颈与开发复杂度之间的权衡。基于 Muon.jl 提供的 AnnData 数据结构，Juscan.jl 实现了包括数据预处理、高变基因识别、降维与聚类在内的一站式分析流程。平台设计力求模块化与简洁性，API 风格对标 Scanpy，降低用户迁移成本，并可充分利用 Julia 的 JIT 编译与原生并行机制，实现高性能计算。
-
-实验结果表明，在大规模数据集处理上，Juscan.jl 的效率明显优于 R 语言的 Seurat，虽初版性能略低于 Scanpy，但 Julia 语言本身具备更高的性能上限，随着后续优化有望显著提升。本研究不仅为 Julia 在单细胞领域的应用奠定基础，也为高性能生物数据分析提供了新思路与工具支持。
+在生物体中，细胞间的连接不仅发挥着细胞间信息交流和物质运输的作用，还维持着  组织屏障的完整性。然而随着衰老， 细胞间的连接被逐渐破坏， 生物体产生生理功能紊乱， 目前这种现象的潜在分子机制还未完全阐明。既往研究表示，在线虫模型中，分泌型组织  蛋白酶家族 B 在线虫中的其中一个同源物 CPR-6 蛋白的表达水平呈现年龄依赖性上调， 且  通过降解表皮细胞的胞间连接蛋白破坏组织屏障完整性， 这一发现表明组织蛋白酶 B 家族  在衰老相关的屏障功能失调中发挥关键作用。然而，组织蛋白酶在线虫中的其他同源物是  否参与这一生物学过程仍有待解析。因此， 在本研究中， 我们以秀丽隐杆线虫为模式生物， 理论上，我们第一次深入探索了组织蛋白酶在线虫中的其他同源物，并研究它们在衰老过  程中的作用；实验中，我们利用 RNA 干扰技术，特异性敲低线虫中相应组织蛋白酶的表达， 结合组织屏障完整性相关的实验，观察对比在衰老过程中线虫实验组与对照组之间组织屏  障的受损程度。实验数据揭示了有关组织蛋白酶在衰老过程中对组织屏障的调控机制，并  为开发基于屏障功能维持的衰老干预策略提供了潜在的分子靶点。
 }{
-单细胞转录组测序（scRNA-seq）, 生物信息学, Julia, 高性能计算, 数据分析工具
+衰老；秀丽隐杆线虫；组织蛋白酶家族；组织屏障；胞间连接蛋白
 }
 
 
 %英文摘要
 \EnAbstract{
-Single-cell technologies, such as single-cell RNA sequencing (scRNA-seq), are advancing at an unprecedented pace, ushering life sciences into a new era of analysis at cellular resolution. Compared to traditional bulk RNA sequencing, single-cell approaches enable the capture of cellular heterogeneity, revealing a much more refined landscape of biological processes. However, due to the high dimensionality, sparsity, and inherent noise of such data, their analysis places stringent demands on computational tools and algorithmic frameworks.
-
-Currently, mainstream platforms like Scanpy (Python) and Seurat (R) offer comprehensive functionalities but are limited in performance due to the runtime inefficiencies of interpreted languages. To overcome these limitations, many of these tools rely on static languages such as C/C++ or Rust for backend acceleration—an approach that increases development complexity and raises the barrier for debugging and maintenance.
-
-In this study, we introduce Juscan.jl, a single-cell data analysis platform written entirely in Julia, aiming to break the trade-off between computational performance and development simplicity. Built upon the AnnData structure provided by Muon.jl, Juscan.jl delivers an end-to-end pipeline for single-cell analysis, encompassing data preprocessing, highly variable gene selection, dimensionality reduction, and clustering. The platform adopts a modular and minimalist design, with an API style inspired by Scanpy to ease user migration, while fully leveraging Julia’s just-in-time (JIT) compilation and native parallelism for high-performance computing.
-
-Experimental results show that Juscan.jl significantly outperforms Seurat when processing large-scale datasets. While its current version slightly trails Scanpy in performance, Julia's inherently higher performance ceiling offers promising potential for future optimization. This work not only lays a foundation for Julia’s application in single-cell transcriptomics but also offers new perspectives and tools for high-performance biological data analysis.
+In organisms,intercellular connections are crucial for cellular communication, material trans- port, and maintaining the integrity of tissue barriers.  However, during aging, the gradual break- down of these connections can lead to physiological dysfunction. The underlying molecular mech- anisms are not fully understood.Previous studies in a nematode model revealed that the expression of CPR-6, a homolog of the secreted tissue plasminogen activator family B, increases with age. It disrupts tissue barriers by degrading epithelial cell junction proteins, indicating a key role of this family in age-related barrier dysfunction. Yet, the involvement of other homologs of this family in this process remains unclear.In this study, using Caenorhabditis elegans as a model, we explored the role of other tissue plasminogen activator homologs in aging. Through RNA interference, we speciﬁcally knocked down their expression and assessed tissue barrier integrity to compare the damage between experimental and control groups during aging.  Our data uncover the regulatory mechanisms of tissue plasminogen activators on tissue barriers during aging and offer potential molecular targets foraging intervention strategies based on barrier function maintenance.
 }{
-Single-cell RNA sequencing (scRNA-seq), bioinformatics, Julia, high-performance computing, data analysis tools
+Aging；Caenorhabditis elegans；Cathepsin family；Tissue barrier；Cell junction proteins
 }
 
 %生成目录
@@ -249,16 +238,19 @@ Single-cell RNA sequencing (scRNA-seq), bioinformatics, Julia, high-performance 
 %=================================================================
 
 \chapter{引言}
-\input{chapters/chapter1/chapter1.tex}
+\input{chapters/chapter1.tex}
 
-\chapter{系统设计与实现}
+\chapter{背景介绍}
 \input{chapters/chapter2.tex}
 
-\chapter{实验与评估}
+\chapter{实验流程与方法}
 \input{chapters/chapter3.tex}
 
-\chapter{讨论}
+\chapter{实验结果}
 \input{chapters/chapter4.tex}
+
+\chapter{总结和期望}
+\input{chapters/chapter5.tex}
 
 %=================================================================
 %论文后部
@@ -270,35 +262,34 @@ Single-cell RNA sequencing (scRNA-seq), bioinformatics, Julia, high-performance 
 %=======%
 \bibdatabase{bib/database}%bib文件名称 仅修改bib/ 后部分
 \printbib
-\nocite{*} %显示数据库中有的，但是正文没有引用的文献
+% \nocite{*} %显示数据库中有的，但是正文没有引用的文献
 
-\Appendix
-
-\section{Juscan.jl源代码与文档}
-
-源码见Github仓库: \href{https://github.com/zehua0417/Juscan.jl.git}{https://github.com/zehua0417/Juscan.jl.git}
-
-其他更多使用细节见文档：\href{https://zehua0417.github.io/Juscan.jl/}{https://zehua0417.github.io/Juscan.jl/}
-
-\section{性能检测}
-
-\showcode{julia}{Juscan.jl速度检测}{../vs/src/sc.jl}
-\showcode{R}{Seurat速度检测}{../vs/src/sc.R}
-\showcode{python}{scanpy速度检测}{../vs/src/sc.py}
+% \Appendix
 
 \Thanks
 
-本论文的完成离不开多方的关心与支持，在此谨致以诚挚的感谢。
 
-首先，衷心感谢我的导师赵伟老师在课题选题、研究设计与论文撰写过程中给予的悉心指导与宝贵建议。赵老师严谨治学的态度、敏锐的问题意识以及持续探索的精神，为本研究的顺利推进提供了重要保障。
+相聚于秋，离别在夏，我的大学生活即将落幕。总觉得来日方长，毕业遥遥可及，终于也
+到我执笔于此。以为谈及这四年我会行云流水滔滔不绝，可真到下笔时，却只有百感交集。回
+望漫漫求学路，并非皆是坦途，但一路前行，一路成长，无论喜悦还是悲伤，所有经历，于我
+都是生命的馈赠，所有相遇，于我都是独家的珍宝。这四年来目光所及之处，皆是回忆，我度
+过了人生中最青春的年华。万般不舍，心怀感激。 
 
-感谢生命科学学院为我提供了良好的学习与科研环境，系统的课程设置与丰富的学术资源，为我的专业成长和科研训练打下了坚实基础。感谢各位授课教师在本科阶段的辛勤教学和耐心指导，使我得以不断夯实专业知识，拓展学术视野。
+涓涓恩师情，深深印于心。所谓大学者，非谓有大楼之谓也，有大师之谓也。我要向大学
+期间遇到的所有课程教师以及辅导员老师表达我的感谢。任课老师的课程有趣而充实，让我在
+大学期间受益匪浅，我从他们非凡的专业知识和各个领域独特的见解中获得的视野将对我未来
+的生活和事业具有永恒的意义。辅导员老师的悉心照顾让我在学习上没有了后顾之忧。从知识
+到校园生活，让我从一张小白纸逐渐变成了写满知识的书本。 
 
-感谢我的家人长期以来给予的理解与支持，是他们无声的鼓励与陪伴，使我能够专注于学业，克服困难，坚定前行。
+家人之爱，永记于心。感谢父母二十多年来的悉心培养，感谢父母一直在背后默默支持我
+，正是因为你们的支持和付出，才能让我圆满的完成求学之路。失意时给予我鼓励，任性
+时给予我宽容，难过时耐心听我吐露心声，你们是我前进路上最大的底气，唯有万般努力
+才能成为你们的骄傲，你们永远平安、健康、快乐是我最大的心愿。
+非常感谢我的朋友们，我可爱的室友们，感恩相遇，有你们的存在使我这四年并不枯燥，感恩知己，我们一起努力，一起进步，虽然最终我们都会天各一方，但是希望你们能够前程似锦，以梦为马，不负韶华。能够陪伴在我身边的朋友们，希望你们无论之后是在哪里生活、哪里工作，我们也许很难见面，但是唯有爱意不减。
 
-同时，感谢开源社区与相关软件项目开发者的无私贡献，特别是Muon.jl、Scanpy等项目，为本研究提供了重要的参考与技术支持。
+最后我要特别感谢我的指导老师沈义栋老师和金卫林老师，以及我的班主任，张文华老师。桃李不言，这三位老师有着严谨的教学态度，严密的逻辑思维，丰富的学科知识，以及负责任的工作态度，让我在学习和做人方面都受益匪浅。在整个论文的定题、修改过程中也少不了他们的细心审查。我将牢记老师的教诲，不管是对于这个课题，还是对于做人的态度，我将奋力拼搏，修改错误，超越之前的自己。
 
-最后，感谢在项目开发、测试与讨论过程中给予我帮助与建议的同学与朋友们。你们的支持使本项目不断完善，持续前进。
+道阻且长，行则将至。最后，我想感谢我自己。你走的很慢但一直前行；你真诚待人，也被人真诚相待。希望在未来，仍对世界保持好奇心，满怀期待地去热爱生活，砖一瓦不断建立自己的内心秩序，寻找自治的生活方式。我将带着春天的印记远航，尽情播撒梦想的种子，去启山去躬耕，去摇撸开拓，让夏无尽，让秋丰盈，让此生硕硕
 
 \Grade
 

@@ -1,214 +1,258 @@
-%%% 实验与评估
+\section{实验流程}
 
-\section{实验数据集介绍}
-
-本研究使用的单细胞转录组数据集为 10x Genomics 公司公开发布的经典示例数据集——PBMC 3k 数据集。该数据集包含约 2,700 个外周血单核细胞（Peripheral Blood Mononuclear Cells, PBMC），来自一位健康成年供体。PBMC 包括 T 细胞、B 细胞、自然杀伤细胞和单核细胞等多种免疫相关细胞类型，常作为免疫学研究中的模型系统。
-
-PBMC 3k 数据集采用 10x Genomics Chromium 单细胞 3' RNA 测序平台进行文库构建，并使用 Illumina NextSeq 500 高通量测序仪进行测序。每个细胞平均测序深度约为 69,000 个 reads。原始数据使用 10x Genomics 官方分析工具 Cell Ranger（版本 1.1.0）进行预处理，包括细胞条形码识别、UMI 去重及基因表达矩阵生成。数据结果以稀疏矩阵形式存储，包含每个细胞在各个基因上的表达计数。
-
-本数据集可以在\href{https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz}{10XGenomics官网}获取，并可以使用SeuratDisk，scDior等工具转换为h5ad文件。
-
-由于数据来源权威、质量可靠、样本复杂性适中，PBMC 3k 数据集已广泛应用于 Seurat、Scanpy 等单细胞分析工具的功能验证与流程教学中，是验证聚类、降维、批次效应处理等算法性能的标准数据集之一。
-
-
-\section{实验设计与流程}
-
-本文基于 PBMC 3k 数据集，参考官方流程，实现了单细胞 RNA 测序数据分析的完整流程。以下是使用 Juscan.jl 库进行数据分析的示例:
-
-\subsection{数据读取与质量控制}
-
-Juscan.jl 库使用 Muon.jl 库作为数据存储的基础，支持读取 h5ad 格式的数据文件。数据读取后，使用\code{Juscan.Pp.filter_cells!} 和 \code{Juscan.Pp.filter_genes!} 函数进行细胞和基因的过滤，去除低质量细胞和低表达基因。接着，计算线粒体基因、核糖体基因和血红蛋白基因的表达比例，并根据这些指标进行进一步的质量控制。
-
-\begin{fancybox}{Juscan.jl demo data load and quality control}
-\addcontentsline{lot}{table}{代码~\thetcbcounter: Juscan.jl示例：数据读取与质量控制}
-\begin{lstlisting}
-using Juscan, Muon
-using DataFrames, LinearAlgebra, SparseArrays
-
-adata = Juscan.readh5ad("./data/pbmc_3k.h5ad")
-
-############## quality control #################
-
-Juscan.Pp.filter_cells!(adata, min_genes=200)
-Juscan.Pp.filter_genes!(adata, min_cells=3)
-Juscan.Pp.filter_cells!(adata, max_genes=2300)
-Juscan.Pp.filter_cells!(adata, max_counts=10000)
-
-adata.var.mt = startswith.(adata.var_names, "MT-")
-adata.var.ribo = startswith.(adata.var_names, "RPS") .| startswith.(adata.var_names, "RPL")
-adata.var.hb = occursin.(r"^HB[^P]", adata.var_names)
-
-Juscan.Pp.calculate_qc_metrics!(adata, qc_vars=["mt", "ribo", "hb"])
-adata = adata[adata.obs[!, "pct_counts_mt"] .< 8, :]
-adata = adata[adata.obs[!, "pct_counts_mt"] .> 0.5, :]
-
-Juscan.Pl.violin(
-  adata,
-  ["pct_counts_mt", "n_genes_by_counts", "total_counts"];
-  width=300,
-  height=800,
-  fill_alpha=1,
-  savefig="/home/lihuax/Pictures/Juscan/qc_violin.png",
-)
-
-Juscan.Pl.scatter(
-  adata,
-  "total_counts",
-  "n_genes_by_counts",
-  color_key="pct_counts_mt",
-  width=800,
-  height=800,
-  colormap_name="magma",
-  savefig="/home/lihuax/Pictures/Juscan/qc_scatter.png",
-)
-
-\end{lstlisting}
-\end{fancybox}
-
-运行上述代码后，获得处理后的高质量细胞数据集。为了直观展示质量控制的效果，使用小提琴图用于展示线粒体比例、总转录本数量与基因数的分布情况，帮助我们观察数据的整体质量分布；而散点图则揭示了转录本总数与检测到的基因数之间的关系，并以线粒体比例着色，从而更好地识别潜在的异常细胞。
-
-图~\ref{img:Juscan_qc} 所示即为本次质量控制过程中生成的 QC 图像。
-
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \subfigure{
-    \begin{minipage}[b]{.4\linewidth}
-       \centering
-       \includegraphics[scale=0.3]{./img/juscan_qc_violin.png}
-    \end{minipage}
-  }
-  \subfigure{
-    \begin{minipage}[b]{.4\linewidth}
-      \centering
-      \includegraphics[scale=0.3]{./img/juscan_qc_scatter.png}
-    \end{minipage}
-  }
-  \caption{Juscan.jl质量控制可视化结果}
-  \label{img:Juscan_qc}
+  \includegraphics[width=0.57\textwidth]{img/flow_chart.png}
+  \caption{实验流程}
+  \label{fig:flow_chart}
 \end{figure}
 
-\subsection{数据归一化与高变基因}
+\section{实验方法}
 
-首先，使用 \code{Juscan.Pp.normalize_total!} 函数对每个细胞的转录本数进行归一化，使其总表达量一致（如 1000），从而消除不同细胞间测序深度的影响。随后，应用 \code{Juscan.Tl.logp1_transform!} 函数对归一化后的数据进行对数变换（$log(x+1)log(x+1)$），以缓解表达量跨度过大的问题，使其更符合后续线性模型的假设。
+\subsection{扩增插入基因}
 
-\begin{fancybox}{Juscan.jl normalize and find hvg}
-\addcontentsline{lot}{table}{代码~\thetcbcounter: Juscan.jl示例：数据归一化与高变基因}
-\begin{lstlisting}
-############### normalization #################
-adata.layers["normalized"] = deepcopy(adata.X)
-Juscan.Pp.normalize_total!(adata, target_sum=1000, layer="normalized")
-Juscan.Tl.logp1_transform!(adata, layer="normalized", key_added="normalized_logp1")
-adata.layers["normalized_logp1"] = Float64.(adata.layers["normalized_logp1"])
+\textbf{一、引物设计}
 
-############### highly variable genes #################
-Juscan.Tl.highly_variable_genes!(adata, n_top_genes=2000, layer="normalized_logp1")
-Juscan.Pl.hvg_scatter(adata, savefig="/home/lihuax/Pictures/Juscan/hvg_scatter.png")
-\end{lstlisting}
-\end{fancybox}
+\begin{enumerate}[itemsep=0.1em]
+\item 使用高质量的模板。
+\item 勿使用dUTP和带有尿嘧啶的引物和模板。
+\item 如实验需要,可适当提高Phanta酶的使用量,但50ul体系内酶量建议不要超过2ul。
+\item Phanta酶具有较强的校对活性。因此,如扩增产物需要进行TA克隆,加之前必须进行DNA纯化。
+\item 为了防止Phanta酶的校对活性降解引物,在配制反应体系时请最后加入聚合酶。
+\item 引物设计
+\begin{enumerate}[label={（\arabic*）}, itemsep=0.1em]
+  \item 引物3端最后一个碱基最好为G或者C;
+  \item 引物3端最后8个碱基应避免出现连续错配;
+  \item 引物3端应避免出现发夹结构;
+  \item 正向引物和反向引物的Tm值相差不超过1℃为佳,Tm值调整至55～65℃为佳；
+  \item 引物额外附加序列,即与模板非配对序列,不应参与引物Tm值计算
+  \item 引物的GC含量控制在40\%-60\%之间;
+  \item 引物A、G、C、T整体分布要尽量均匀,避免使用GC或者AT含量高的区域;
+  \item 引物内部或者两条引物之间避免有5个碱基以上的互补序列,两条引物的3端避免有3个碱基以上的互补序列;
+  \item 引物设计完毕请使用NCBI BLAST功能检索引物特异性,以避免非特异性扩增产生。
+\end{enumerate}
+\end{enumerate}
 
-在归一化的基础上，使用 \code{Juscan.Tl.highly_variable_genes!} 方法从全基因集中筛选出表达波动性最强的 2000 个基因。这些基因包含了最丰富的生物学信号，是降维与聚类分析的核心输入。
+\textbf{二、PCR}（Panta酶反应体系，从全基因组中PCR结束之后需要做一步消化。要注意全程在冰上操作，加的体积从大到小）
 
-图~\ref{img:hvg} 展示了PCA肘部图和高变基因的分布图，肘部图用于后续分析中选择pca维度数字而hvg图中显示了高变基因的分布，其中深色点为筛选出的高变基因。
+\begin{longtable}{cc}
+  \caption{PCR 反应体系} \\
+  \toprule
+  \textbf{组分} & \textbf{体积} \\
+  \midrule
 
-\begin{figure}[htbp]
-  \centering
-  \subfigure{
-    \begin{minipage}[b]{.27\linewidth}
-       \centering
-       \includegraphics[width=\textwidth]{./img/juscan_variance_ratio.png}
-    \end{minipage}
-  }
-  \subfigure{
-    \begin{minipage}[b]{.7\linewidth}
-      \centering
-      % \includegraphics[scale=0.4]{./img/juscan_qc_scatter.png}
-        \includegraphics[width=\textwidth]{img/juscan_hvg_scatter.png}
-    \end{minipage}
-  }
-  \caption{Juscan.jl归一化和高变基因可视化结果}
-  \label{img:hvg}
-\end{figure}
+  ddH$_2$O & 17~$\mu$l（加到 50~$\mu$l） \\
+  2$\times$Buffer & 25~$\mu$l \\
+  dNTP & 1~$\mu$l \\
+  上、下游引物（分开加） & 2~$\mu$l \\
+  酶 & 1~$\mu$l \\
+  模板 DNA & 2~$\mu$l \\
 
-\subsection{降维与聚类}
+  \bottomrule
+\end{longtable}
 
-在完成归一化与高变基因筛选之后，进行高维数据的压缩与结构发现。首先，通过 \code{Juscan.Tl.subset_to_hvg!} 筛选前 1000 个高变基因，以提取最具代表性的表达信号。随后，我们使用 \code{Juscan.Tl.pca!} 执行主成分分析（PCA），将原始维度浓缩为若干主成分，同时保存方差贡献比，便于选择合适的维度数进行后续分析。
 
-紧接着，我们通过社区发现算法对 PCA 空间中的细胞进行聚类，以发现细胞的潜在亚群结构。通过 \code{Juscan.Tl.umap!} 函数进一步将 PCA 结果降维至二维空间，用于可视化聚类结果。
+\begin{longtable}{ccc}
+  \caption{PCR 反应条件} \\
+  \toprule
+  \textbf{步骤} & \textbf{时间} & \textbf{温度} \\
+  \midrule
+  \endfirsthead
 
-\begin{fancybox}{Juscan.jl dimensionality reduction and clustering}
-\addcontentsline{lot}{table}{代码~\thetcbcounter: Juscan.jl示例：数据降维与聚类}
-\begin{lstlisting}
-############### dimensionality reduction #################
-Juscan.Tl.subset_to_hvg!(adata; layer="normalized_logp2", n_top_genes=1000)
+  \multicolumn{3}{l}{\textit{续表：PCR 反应条件}} \\
+  \toprule
+  \textbf{步骤} & \textbf{时间} & \textbf{温度} \\
+  \midrule
+  \endhead
 
-Juscan.Tl.pca!(adata; layer="normalized_logp1", key_added="pca", n_pcs=50)
-Juscan.Pl.plot_variance_ratio(adata, savefig="/home/lihuax/Pictures/Juscan/variance_ratio.png")
+  \bottomrule
+  \multicolumn{3}{r}{\textit{表格接下页}} \\
+  \endfoot
 
-############### clustering #################
-Juscan.Tl.clustering!(adata, reduction="pca", use_pca=10, resolution=0.6)
-Juscan.Tl.umap!(
-  adata;
-  key_added="umap",
-  use_pca="pca",
-  n_pcs=10,
-  min_dist=0.5,
-  n_neighbors=30,
-)
-Juscan.Pl.plot_umap(
-  adata,
-  color_by="clusters_latest",
-  key="umap",
-  savefig="/home/lihuax/Pictures/Juscan/clusters.png",
-)
-\end{lstlisting}
-\end{fancybox}
+  \bottomrule
+  \endlastfoot
 
-图~\ref{img:clusters umap plot} 展示了 UMAP 嵌入空间中的聚类结果。每个点代表一个细胞，颜色区分不同的聚类标签。聚类结果的清晰分离，提示着数据中存在明显的生物学异质性，可能对应于不同类型的免疫细胞或功能状态。通过这样的降维可视化图，我们不仅能够观察整体结构，还能识别边缘群体与潜在的亚群细胞，为后续的注释与生物学解释奠定坚实基础。
+  预变性 & 3 min & 95$^\circ$C \\
+  变性   & 15 sec & 95$^\circ$C \\
+  退火   & 15 sec & 60$^\circ$C（根据引物 Tm 值调整） \\
+  延伸   & 150 sec（根据 bp 长度调整） & 72$^\circ$C \\
+  彻底延伸 & 5 min & 72$^\circ$C \\
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.7\textwidth]{img/juscan_clusters.png}
-  \caption{Juscan.jl聚类结果umap可视化}
-  \label{img:clusters umap plot}
-\end{figure}
+\end{longtable}
 
-\section{性能评估}
+\textbf{三．跑胶}
 
-为了全面评估不同语言实现对单细胞 RNA 测序数据处理流程的效率与性能差异，本文基于 PBMC 3k 数据集，分别使用 Julia、Python 与 R 三种主流语言构建了统一流程的 benchmark 测试系统。三种实现版本在逻辑结构、分析步骤及参数设置上保持一致，涵盖典型的单细胞分析流程，包括质量控制、归一化处理、高变基因选择、主成分分析（PCA）、聚类分析与 UMAP 可视化。
+\begin{enumerate}[itemsep=0.1em]
+  \item 安仪器，根据要跑胶的基因数目的具体情况计算要用到的梳子种类和皿的种类。
+  \item 加溶剂，两次煮沸，在侧面冷水下冲洗到$50^\circ\text{C}$。
+  \item 加核酸染料。
+  \item 倒胶。
+  \item 晾干30min，待胶条凝固冷却成型。
+  \item 取梳子。
+  \item 转胶条。
+  \item 加基因和marker。
+  \item 电压150V，电流400A，跑胶。
+\end{enumerate}
 
-其中，Julia 的测试基于\code{BenchmarkTools.jl} 库, python和R分别使用\code{time}模块和\code{system.time}方法自行构建性能测试函数。
-在每个步骤中，实验统一采用 100 次重复采样方式对每个函数进行性能测量，并最终输出时间与内存占用的统计汇总结果（CSV 格式）。
+\textbf{四．胶回收}
 
-详细的测试代码请见附件。
+\begin{enumerate}[itemsep=0.1em]
+  \item 切胶，置于2.0ml EP管中。切胶要放切胶板，切完的胶扔到红色垃圾袋，管中的胶放在相应的引物旁边，作好引物名称标记。
+  \item 加3倍凝胶体积的Buffer MB，$55^\circ\text{C}$水浴加热，直至凝胶全部融化。
+  \item 在等待胶溶期间，向离心吸附柱中加入500$\mu$l Buffer BL，静止1min，室温下12,000rpm离心1min，弃收集管中的废液，将离心吸附柱重新放回收集管中。
+  \item 待凝胶溶液冷却至室温后，转移到离心吸附柱内，静置1min，室温下12,000rpm离心1min。
+  \item 弃除收集管中的废液，将离心吸附柱重新插回收集管中。
+  \item 加入600$\mu$l Buffer MW于离心吸附柱中，室温下12,000rpm离心30s，弃除收集管中的废液，将离心吸附柱重新插回收集管中。
+  \item 重复操作步骤6。
+  \item 室温下12,000rpm空离2min，弃除收集管。
+  \item 将吸附柱置于1.5ml离心管中，加入50$\mu$l\~100$\mu$l至吸附柱中央，室温静置1min，12,000rpm离心1min。
+  \item 弃去吸附柱，获得的DNA片段可直接用于后续反应或于$-20^\circ\text{C}$长期保存。
+\end{enumerate}
 
-\subsection{Seurat对比juscan.jl评估结果}
+\subsection{扩增质粒}
 
-如下图\ref{img:r_vs_julia}是对比 Seurat 和 juscan.jl 的性能评估结果。
+\textbf{一．摇菌（扩增质粒数量）}
 
-由于Seurat和Juscan的逻辑差异比较大，fiter和计算质量控制矩阵步骤没有被单独封装为函数，因此这里并没比较这些步骤的效率。
+\textbf{二．提质粒}
 
-而对于已经比较的步骤，Juscan的效率明显优于Seurat，尤其在归一化，降维和聚类方面，Juscan的性能优势更为明显。
+\begin{enumerate}[itemsep=0.3em]
+  \item 取摇菌管，4000rpm离心3min。弃去培养基，将摇菌管倒扣于吸水纸上吸尽残液。
+  \item 向留有菌体沉淀的摇菌管中加入250$\mu$l Buffer P1，用移液器或涡旋振荡混匀后将其转入1.5ml离心管中。
+  \item 向步骤2中加入250$\mu$l Buffer P2，温和地上下颠倒混匀8–10次，使菌体充分裂解。
+  \item 向步骤3中加入350$\mu$l Buffer P3，立即温和地上下颠倒8–10次使溶液彻底中和。将混合液加入吸附柱中，12,000rpm离心30–60s，弃废液并将吸附柱重新放回收集管中。
+  \item 重复步骤4。
+  \item 将吸附柱放入新的1.5ml离心管中，12,000rpm离心2min，以干燥吸附柱，彻底去除残留漂洗液。
+  \item 将吸附柱再次置于新的灭菌1.5ml离心管中，加入30$\mu$l无菌水至吸附柱膜中央，室温静置2min，12,000rpm离心1min以洗脱DNA。
+  \item 测定质粒DNA浓度，并在离心管上做好标记。
+\end{enumerate}
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.7\textwidth]{img/r_vs_julia.png}
-  \caption{Juscan.jl与Seurat性能对比}
-  \label{img:r_vs_julia}
-\end{figure}
+\subsection{构建新的质粒}
 
-\subsection{scanpy对比juscan.jl评估结果}
+\textbf{一、酶切}
 
-如下图\ref{img:python_vs_julia}是对比 scanpy 和 juscan.jl 的性能评估结果。
+\begin{longtable}{cc}
+  \caption{酶切体系} \\
+  \toprule
+  \textbf{组分} & \textbf{用量} \\
+  \midrule
+  \endfirsthead
 
-可以明显看到，python在数据读取、归一化、PCA 和 UMAP 等步骤上均表现出显著的性能优势，尤其在降维方面。
-另外Juscan的性能表现并不稳定，在不同的测试中，性能波动较大，可能与 Julia 的 JIT 编译机制有关。
+  \multicolumn{2}{l}{\textit{续表：酶切体系}} \\
+  \toprule
+  \textbf{组分} & \textbf{用量} \\
+  \midrule
+  \endhead
 
-总之，在归一化和降维，聚类等步骤上，Python 的性能明显优于 Julia，Juscan.jl任有恒大的进步空间。
+  \bottomrule
+  \endfoot
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\textwidth]{img/python_vs_julia.png}
-  \caption{Juscan.jl与Scanpy性能对比}
-  \label{img:python_vs_julia}
-\end{figure}
+  \bottomrule
+  \endlastfoot
 
+  Plasmid & 2~$\mu$g \\
+  Enzyme 1 & 1~$\mu$l \\
+  Enzyme 2 & 1~$\mu$l \\
+  10$\times$酶切 Buffer & 3~$\mu$l \\
+  ddH$_2$O & up to 30~$\mu$l \\
+  
+\end{longtable}
+
+震荡混匀，37$^\circ\text{C}$酶切30min（3000bp酶切30min）
+
+\textbf{二、纯化}（与胶回收的原理和步骤类似）
+
+\textbf{三、连接}
+
+弹管混匀后冰浴30min
+
+\begin{longtable}{cc}
+  \caption{连接体系} \\
+  \toprule
+  \textbf{组分} & \textbf{用量} \\
+  \midrule
+  \endfirsthead
+
+  \multicolumn{2}{l}{\textit{续表：连接体系}} \\
+  \toprule
+  \textbf{组分} & \textbf{用量} \\
+  \midrule
+  \endhead
+
+  \bottomrule
+  \endfoot
+
+  \bottomrule
+  \endlastfoot
+
+  载体 & 30~ng（3~$\mu$l / 2~$\mu$l） \\
+  插入序列 & 50~ng（5~$\mu$l / 6~$\mu$l） \\
+  10$\times$酶切 Buffer & 1~$\mu$l \\
+  Exo3 & 1~$\mu$l（取 1~$\mu$l 加到 9~$\mu$l 水中，稀释 10 倍后取 1~$\mu$l） \\
+\end{longtable}
+
+\textbf{四．转化}
+
+\begin{enumerate}[itemsep=0.1em]
+  \item 取感受态细胞放冰上解冻。
+  \item 向感受态细胞中加入10$\mu$l连接产物，弹管混匀。
+  \item 冰浴10min。
+  \item 42$^\circ$\text{C}热激90s。
+  \item 冰浴3\~5min。
+  \item 在超净台中加入1ml不含抗生素的LB培养基，混匀后于37$^\circ$\text{C}孵育1h。
+  \item 5,000rpm离心4min，吸走上清，只留100$\mu$l，吹打重悬后涂布于抗性平板上。
+  \item 置于37$^\circ$\text{C}培养10–16h。
+  \item 挑取单克隆接种至含抗生素的LA液体培养基中，小摇培养约3h。
+\end{enumerate}
+
+\textbf{注意：}需要设置一个阴性对照——酶切后的载体（3$\mu$l，无需添加连接酶），用于判断载体是否被完全切开或发生自我连接。
+
+\subsection{PCR 验证和测序}
+
+\textbf{一、菌液PCR}
+
+\textbf{二、跑胶验证}
+
+\subsection{RNAi 实验}
+
+\begin{enumerate}[itemsep=0.3em]
+
+  \item 第0天：在含抗生素的LB液体培养基中接种含有RNAi质粒的HT115大肠杆菌，于37$^\circ$\text{C}震荡培养12–16小时，以获取最多的活菌。
+  
+  \item 第一天：
+  \begin{enumerate}[label*={（\alph*）}, itemsep=0.3em]
+    \item 将菌液1:100稀释至2$\times YT ^+$ 抗生素中，培养至OD$_{595}$ = 0.4；
+    \item 加入无菌 IPTG 使终浓度达到0.4mM，在37$^\circ$\text{C}摇床诱导4小时；
+    \item 在含抗生素和IPTG的培养条件下继续培养。可直接使用培养液，也可将菌液以2000rpm离心、吸走上清后重悬浓缩细胞，然后播种至RNAi平板上。
+  \end{enumerate}
+  
+  \item 挑选线虫至RNAi平板上，开始RNAi实验。
+  
+\end{enumerate}
+
+\subsection{Smurf Assy 实验}
+
+\begin{enumerate}[itemsep=0.1em]
+  \item 提前一天使用LB培养基摇菌OP50（线虫的食物），于37$^\circ$\text{C}培养12–16小时。使用前将菌液浓缩10倍。
+  \item 配制5\% Smurf染液：在浓缩后的菌液中加入0.25g Smurf染料粉末，加入5ml浓缩菌液，涡旋混匀备用。
+  \item 用2ml离心管，加入200$\mu$l M9缓冲液，将待处理线虫挑入管中。再加入400$\mu$l步骤2中配制的5\% Smurf染液。
+  \item 将混合液放置在20$^\circ$\text{C}水平摇床上，缓慢摇晃3小时。
+  \item 使用台式小型离心机离心10s，使线虫沉降至管底。吸去上清，保留约300$\mu$l液体，补加1ml M9，轻轻重悬清洗。重复洗涤多次，直到线虫体表的蓝色染料明显变淡，能透过离心管看到手指为止。最后保留约300$\mu$l液体。
+  \item 将洗后的线虫液体，用低吸附枪头滴加在已吹干的NGM平板上，轻轻摇晃，使液体尽可能摊平于平板表面。从该平板中挑取线虫转移到无菌NGM平板（用于拍照）。
+  \item 在无菌NGM平板上加入叠氮化钠杀死线虫，排列整齐后进行拍照观察。根据Smurf染料在虫体内的渗透程度，判断线虫肠道屏障的完整性。
+\end{enumerate}
+
+\subsection{荧光共聚焦实验}
+
+
+\begin{enumerate}[itemsep=0.1em]
+\item 使用左旋咪唑麻醉线虫，将线虫进行排列（每个RNAi组拍摄大约30条虫子）。
+\item 使用488nm波长的荧光通道，拍摄线虫表皮细胞间HMR-1-GFP的点状荧光信号。
+\end{enumerate}
+
+\section{小结}
+
+本章节详细描述了从基因扩增到荧光共聚焦实验的完整实验步骤，涵盖了DNA操作，RNAi实验以及线虫屏障相关实验多个环节。整个实验流程设计严谨，步骤清晰，我们的实验确保了每一步操作的准确性和可重复性，为研究基因功能和线虫生物学特性提供了可靠的实验方法。
+
+我们的实验首先从引物设计开始，整个引物设计规则严谨，为了确保后续的一系列实验按部就班开展。在扩增插入基因时，我们使用Phanta酶进行PCR反应， PCR产物会通过跑胶和胶回收进行纯化。接下来是质粒的扩增和提取。我们通过摇菌培养细菌以扩增质粒数量，然后进行质粒提取，最终获得高纯度质粒DNA。在构建新的质粒时，我们首先对质粒进行酶切，酶切后的载体通过纯化去除杂质，然后与插入目的片段进行连接，连接产物又通过转化进入感受态细胞，经过培养后在氨苄板上筛选阳性克隆。为了验证阳性克隆，本实验采用菌液PCR和跑胶验证，以确保插入序列的正确性。
+
+随后我们进行RNAi实验。首先我们在LB培养基中培养HT115菌株，加入IPTG诱导dsRNA表达涂板。然后我们将线虫转移到RNAi平板上进行喂养。Smurf Assay实验用于评估线虫肠道屏障功能，利用浓缩菌液配制5\%的 Smurf染料，对线虫进行染色后通过离心、洗涤和显微镜观察得出线虫肠道屏障损伤程度结果。最后，荧光共聚焦拍摄和判断线虫表皮屏障的受损情况。最后两种判断线虫屏障受损与否的实验结果我们都将用定量软件进行分析，以确保最终的实验结论严谨可靠。
